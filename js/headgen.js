@@ -1,67 +1,101 @@
 var Head3D = (function () {
+
     const RENDER_SIZE = 512;
     const CAMERA_VIEW_SIZE = 2.4;
 
     let currentRender = null;
 
 
-    // ============================================================
-    // Skin loading
-    // ============================================================
+    function loadSkinImage(source) {
 
-    function loadSkinImage(username) {
         return new Promise(function (resolve, reject) {
+
             const image = new Image();
 
-            image.crossOrigin = "anonymous";
 
             image.onload = function () {
                 resolve(image);
             };
 
+
             image.onerror = function () {
+
                 reject(new Error("Could not load Minecraft skin."));
             };
 
-            image.src = "https://minotar.net/skin/" + encodeURIComponent(username);
+
+            if (source instanceof File) {
+
+                const url = URL.createObjectURL(source);
+
+
+                image.onload = function () {
+
+                    URL.revokeObjectURL(url);
+
+                    resolve(image);
+                };
+
+
+                image.src = url;
+
+                return;
+            }
+
+
+            image.crossOrigin = "anonymous";
+
+
+            image.src = "https://minotar.net/skin/" + encodeURIComponent(source);
         });
     }
 
 
-    // ============================================================
-    // Texture helpers
-    // ============================================================
-
     function createFaceTexture(skinImage, x, y, options) {
+
         options = options || {};
+
 
         const canvas = document.createElement("canvas");
 
+
         canvas.width = 8;
+
         canvas.height = 8;
+
 
         const context = canvas.getContext("2d");
 
+
         context.imageSmoothingEnabled = false;
+
 
         context.clearRect(0, 0, 8, 8);
 
+
         context.save();
+
 
         context.translate(4, 4);
 
+
         if (options.rotation) {
+
             context.rotate(THREE.MathUtils.degToRad(options.rotation));
         }
 
+
         context.scale(options.flipX ? -1 : 1, options.flipY ? -1 : 1);
 
+
         context.drawImage(skinImage, x, y, 8, 8, -4, -4, 8, 8);
+
 
         context.restore();
 
 
         const texture = new THREE.CanvasTexture(canvas);
+
 
         texture.magFilter = THREE.NearestFilter;
 
@@ -71,12 +105,15 @@ var Head3D = (function () {
 
         texture.needsUpdate = true;
 
+
         return texture;
     }
 
 
     function createMaterial(skinImage, region) {
+
         return new THREE.MeshLambertMaterial({
+
             map: createFaceTexture(skinImage, region.x, region.y, region),
 
             transparent: true,
@@ -89,7 +126,10 @@ var Head3D = (function () {
 
 
     function createMaterials(skinImage, regions) {
-        return [createMaterial(skinImage, regions.left),
+
+        return [
+
+            createMaterial(skinImage, regions.left),
 
             createMaterial(skinImage, regions.right),
 
@@ -99,25 +139,28 @@ var Head3D = (function () {
 
             createMaterial(skinImage, regions.front),
 
-            createMaterial(skinImage, regions.back)];
+            createMaterial(skinImage, regions.back)
+
+        ];
     }
 
 
-    // ============================================================
-    // Head geometry
-    // ============================================================
-
     function createHead(skinImage, regions) {
+
         const geometry = new THREE.BoxGeometry(1, 1, 1);
 
+
         const materials = createMaterials(skinImage, regions);
+
 
         return new THREE.Mesh(geometry, materials);
     }
 
 
     function getBaseRegions() {
+
         return {
+
             right: {
                 x: 0, y: 8
             },
@@ -146,7 +189,9 @@ var Head3D = (function () {
 
 
     function getOverlayRegions() {
+
         return {
+
             right: {
                 x: 32, y: 8
             },
@@ -174,20 +219,23 @@ var Head3D = (function () {
     }
 
 
-    // ============================================================
-    // Camera
-    // ============================================================
-
     function createCamera(defaults) {
+
         const aspect = 1;
+
 
         const halfHeight = CAMERA_VIEW_SIZE / 2;
 
+
         const halfWidth = halfHeight * aspect;
+
+
         const camera = new THREE.OrthographicCamera(-halfWidth, halfWidth, halfHeight, -halfHeight, 0.1, 1000);
 
 
         camera.position.set(defaults.camera.x, defaults.camera.y, defaults.camera.z);
+
+
         camera.lookAt(0, 0, 0);
 
 
@@ -201,39 +249,28 @@ var Head3D = (function () {
     }
 
 
-    // ============================================================
-    // Scene creation
-    // ============================================================
-
     function createScene(skinImage, withLayers, defaults) {
+
         const scene = new THREE.Scene();
 
-
-        // --------------------------------------------------------
-        // Camera
-        // --------------------------------------------------------
 
         const camera = createCamera(defaults);
 
 
-        // --------------------------------------------------------
-        // Base head
-        // --------------------------------------------------------
-
         const head = createHead(skinImage, getBaseRegions());
 
+
         setHeadRotation(head, defaults.head);
+
 
         scene.add(head);
 
 
-        // --------------------------------------------------------
-        // Outer / hat layer
-        // --------------------------------------------------------
-
         let overlayHead = null;
 
+
         if (withLayers) {
+
             overlayHead = createHead(skinImage, getOverlayRegions());
 
 
@@ -247,28 +284,29 @@ var Head3D = (function () {
         }
 
 
-        // --------------------------------------------------------
-        // Lighting
-        // --------------------------------------------------------
-
         const directional = new THREE.DirectionalLight(defaults.lighting.color, defaults.lighting.directional);
 
+
         scene.add(directional);
+
 
         scene.add(directional.target);
 
 
         const ambient = new THREE.AmbientLight(defaults.lighting.color, defaults.lighting.ambient);
 
+
         scene.add(ambient);
 
 
         const hemisphere = new THREE.HemisphereLight(defaults.lighting.skyColor, defaults.lighting.groundColor, defaults.lighting.hemisphere);
 
+
         scene.add(hemisphere);
 
 
         const light = {
+
             x: defaults.lighting.lightX,
 
             y: defaults.lighting.lightY,
@@ -281,6 +319,7 @@ var Head3D = (function () {
 
 
         return {
+
             scene: scene,
 
             camera: camera,
@@ -300,12 +339,10 @@ var Head3D = (function () {
     }
 
 
-    // ============================================================
-    // Renderer
-    // ============================================================
-
     function createRenderer() {
+
         const renderer = new THREE.WebGLRenderer({
+
             antialias: true,
 
             alpha: true,
@@ -315,6 +352,8 @@ var Head3D = (function () {
 
 
         renderer.setClearColor(0x000000, 0);
+
+
         renderer.setPixelRatio(1);
 
 
@@ -323,7 +362,9 @@ var Head3D = (function () {
 
         renderer.domElement.style.width = RENDER_SIZE + "px";
 
+
         renderer.domElement.style.height = RENDER_SIZE + "px";
+
 
         renderer.domElement.style.display = "block";
 
@@ -332,11 +373,8 @@ var Head3D = (function () {
     }
 
 
-    // ============================================================
-    // Head rotation
-    // ============================================================
-
     function setHeadRotation(head, rotation) {
+
         head.rotation.set(THREE.MathUtils.degToRad(rotation.pitch),
 
             THREE.MathUtils.degToRad(rotation.yaw),
@@ -346,15 +384,13 @@ var Head3D = (function () {
 
 
     function setLayerScale(overlayHead, scale) {
+
         overlayHead.scale.set(scale, scale, scale);
     }
 
 
-    // ============================================================
-    // Lighting
-    // ============================================================
-
     function updateLightPosition(directional, light) {
+
         const direction = new THREE.Vector3(light.x, light.y, light.z).normalize();
 
 
@@ -362,11 +398,8 @@ var Head3D = (function () {
     }
 
 
-    // ============================================================
-    // Rendering
-    // ============================================================
-
     function renderScene() {
+
         if (!currentRender) {
             return;
         }
@@ -376,11 +409,8 @@ var Head3D = (function () {
     }
 
 
-    // ============================================================
-    // Load / create render
-    // ============================================================
+    function render(container, source, options) {
 
-    function render(container, username, options) {
         options = options || {};
 
 
@@ -388,6 +418,7 @@ var Head3D = (function () {
 
 
         if (!defaults) {
+
             throw new Error("Head3D.render requires a defaults object.");
         }
 
@@ -395,12 +426,15 @@ var Head3D = (function () {
         const withLayers = options.withLayers !== false;
 
 
-        return loadSkinImage(username)
+        return loadSkinImage(source)
             .then(function (skinImage) {
+
                 const state = createScene(skinImage, withLayers, defaults);
 
 
                 const renderer = createRenderer();
+
+
                 container.innerHTML = "";
 
 
@@ -431,6 +465,8 @@ var Head3D = (function () {
 
                     layerScale: defaults.layer.scale
                 };
+
+
                 renderer.domElement._head3D = currentRender;
 
 
@@ -442,21 +478,15 @@ var Head3D = (function () {
     }
 
 
-    // ============================================================
-    // Settings
-    // ============================================================
-
     function updateSettings(settings) {
+
         if (!currentRender) {
             return;
         }
 
 
-        // --------------------------------------------------------
-        // Zoom
-        // --------------------------------------------------------
-
         if (settings.zoom !== undefined) {
+
             currentRender.camera.zoom = parseFloat(settings.zoom);
 
 
@@ -465,71 +495,66 @@ var Head3D = (function () {
         }
 
 
-        // --------------------------------------------------------
-        // Head rotation
-        // --------------------------------------------------------
-
         if (settings.pitch !== undefined) {
+
             currentRender.head.rotation.x = THREE.MathUtils.degToRad(parseFloat(settings.pitch));
         }
 
 
         if (settings.yaw !== undefined) {
+
             currentRender.head.rotation.y = THREE.MathUtils.degToRad(parseFloat(settings.yaw));
         }
 
 
         if (settings.roll !== undefined) {
+
             currentRender.head.rotation.z = THREE.MathUtils.degToRad(parseFloat(settings.roll));
         }
 
 
-        // --------------------------------------------------------
-        // Keep outer layer aligned
-        // --------------------------------------------------------
-
         if (currentRender.overlayHead) {
+
             currentRender.overlayHead
                 .rotation
                 .copy(currentRender.head.rotation);
         }
 
 
-        // --------------------------------------------------------
-        // Lighting
-        // --------------------------------------------------------
-
         if (settings.ambient !== undefined) {
+
             currentRender.ambient.intensity = parseFloat(settings.ambient);
         }
 
 
         if (settings.hemisphere !== undefined) {
+
             currentRender.hemisphere.intensity = parseFloat(settings.hemisphere);
         }
 
 
         if (settings.directional !== undefined) {
+
             currentRender.directional.intensity = parseFloat(settings.directional);
         }
 
 
-        // --------------------------------------------------------
-        // Light direction
-        // --------------------------------------------------------
-
         if (settings.lightX !== undefined || settings.lightY !== undefined || settings.lightZ !== undefined) {
+
             if (settings.lightX !== undefined) {
+
                 currentRender.light.x = parseFloat(settings.lightX);
             }
 
 
             if (settings.lightY !== undefined) {
+
                 currentRender.light.y = parseFloat(settings.lightY);
             }
 
 
             if (settings.lightZ !== undefined) {
+
                 currentRender.light.z = parseFloat(settings.lightZ);
             }
 
@@ -538,14 +563,13 @@ var Head3D = (function () {
         }
 
 
-        // --------------------------------------------------------
-        // Hat scale
-        // --------------------------------------------------------
-
         if (settings.layerScale !== undefined) {
+
             currentRender.layerScale = parseFloat(settings.layerScale);
 
+
             if (currentRender.overlayHead) {
+
                 setLayerScale(currentRender.overlayHead, currentRender.layerScale);
             }
         }
@@ -555,15 +579,18 @@ var Head3D = (function () {
     }
 
 
-    // ============================================================
     function disposeObject(object) {
+
         if (!object) {
             return;
         }
 
+
         object.geometry.dispose();
 
+
         object.material.forEach(function (material) {
+
             if (material.map) {
                 material.map.dispose();
             }
@@ -574,55 +601,70 @@ var Head3D = (function () {
 
 
     function setLayersEnabled(enabled) {
+
         if (!currentRender) {
             return;
         }
 
+
         enabled = Boolean(enabled);
 
+
         if (enabled === Boolean(currentRender.overlayHead)) {
+
             return;
         }
 
-        if (enabled) {
-            const overlayHead = createHead(
-                currentRender.skinImage,
-                getOverlayRegions()
-            );
 
-            setLayerScale(
-                overlayHead,
-                currentRender.layerScale
-            );
+        if (enabled) {
+
+            const overlayHead = createHead(currentRender.skinImage, getOverlayRegions());
+
+
+            setLayerScale(overlayHead, currentRender.layerScale);
+
 
             overlayHead.rotation.copy(currentRender.head.rotation);
+
+
             currentRender.scene.add(overlayHead);
+
+
             currentRender.overlayHead = overlayHead;
+
         } else {
+
             currentRender.scene.remove(currentRender.overlayHead);
+
+
             disposeObject(currentRender.overlayHead);
+
+
             currentRender.overlayHead = null;
         }
+
 
         renderScene();
     }
 
 
-    // Download
-    // ============================================================
-
     function downloadHead(canvas, username) {
+
         if (!canvas) {
+
             throw new Error("No head canvas was supplied.");
         }
 
 
         if (!canvas._head3D) {
+
             throw new Error("This canvas was not created by Head3D.");
         }
 
 
         const renderData = canvas._head3D;
+
+
         renderData.renderer.render(renderData.scene, renderData.camera);
 
 
@@ -632,83 +674,86 @@ var Head3D = (function () {
 
 
         if (!safeUsername) {
+
             safeUsername = "minecraft-head";
         }
 
 
         canvas.toBlob(function (blob) {
-                if (!blob) {
-                    console.error("Could not create PNG.");
 
-                    return;
-                }
+            if (!blob) {
 
+                console.error("Could not create PNG.");
 
-                const url = URL.createObjectURL(blob);
-
-
-                const link = document.createElement("a");
+                return;
+            }
 
 
-                link.href = url;
+            const url = URL.createObjectURL(blob);
 
 
-                link.download = safeUsername + ".png";
+            const link = document.createElement("a");
 
 
-                document.body.appendChild(link);
+            link.href = url;
 
 
-                link.click();
+            link.download = safeUsername + ".png";
 
 
-                document.body.removeChild(link);
+            document.body.appendChild(link);
 
 
-                setTimeout(function () {
-                    URL.revokeObjectURL(url);
-                }, 100);
-            },
+            link.click();
 
-            "image/png");
+
+            document.body.removeChild(link);
+
+
+            setTimeout(function () {
+
+                URL.revokeObjectURL(url);
+
+            }, 100);
+        }, "image/png");
     }
 
 
-    // ============================================================
-    // Resize
-    // ============================================================
-
     function resize() {
+
         if (!currentRender) {
             return;
         }
 
 
         currentRender.renderer.setSize(RENDER_SIZE, RENDER_SIZE, false);
+
+
         const halfHeight = CAMERA_VIEW_SIZE / 2;
+
 
         const halfWidth = halfHeight;
 
 
         currentRender.camera.left = -halfWidth;
 
+
         currentRender.camera.right = halfWidth;
 
+
         currentRender.camera.top = halfHeight;
+
 
         currentRender.camera.bottom = -halfHeight;
 
 
-        currentRender.camera.updateProjectionMatrix();
+        currentRender.camera
+            .updateProjectionMatrix();
 
 
         renderScene();
     }
 
-
-    // ============================================================
-    // Public API
-    // ============================================================
 
     return {
 

@@ -1,43 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8">
+<head>
+    <meta charset="UTF-8">
 
-    <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>
         Braden's 3D Head Generator
     </title>
 
-
-    <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js">
-    </script>
-
+    <link rel="icon" type="image/png" href="favicon.ico">
 
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
+
 <h1>
     Braden's 3D Head Generator
 </h1>
 
-
 <div class="workspace">
-
-
-    <!-- =====================================================
-         LIGHTING
-         ===================================================== -->
 
     <section class="panel">
 
         <h2>
             Lighting
         </h2>
-
 
         <div class="control">
 
@@ -62,7 +51,6 @@
 
         </div>
 
-
         <div class="control">
 
             <label for="hemisphere">
@@ -85,7 +73,6 @@
             </div>
 
         </div>
-
 
         <div class="control">
 
@@ -110,7 +97,6 @@
 
         </div>
 
-
         <div class="control">
 
             <label for="lightX">
@@ -134,7 +120,6 @@
 
         </div>
 
-
         <div class="control">
 
             <label for="lightY">
@@ -157,7 +142,6 @@
             </div>
 
         </div>
-
 
         <div class="control">
 
@@ -185,14 +169,9 @@
     </section>
 
 
-    <!-- =====================================================
-         PREVIEW
-         ===================================================== -->
-
     <main class="center">
 
         <div id="preview-container"></div>
-
 
         <div class="username-section">
 
@@ -209,7 +188,6 @@
 
         </div>
 
-
         <div class="buttons">
 
             <button
@@ -219,6 +197,19 @@
                 Load Skin
             </button>
 
+            <button
+                    id="load-file-button"
+                    type="button"
+            >
+                Load from File
+            </button>
+
+            <input
+                    id="skin-file"
+                    type="file"
+                    accept="image/png"
+                    hidden
+            >
 
             <button
                     id="download-button"
@@ -226,7 +217,6 @@
             >
                 Download PNG
             </button>
-
 
             <button
                     id="reset-button"
@@ -236,7 +226,6 @@
             </button>
 
         </div>
-
 
         <label class="checkbox-control">
 
@@ -253,16 +242,11 @@
     </main>
 
 
-    <!-- =====================================================
-         CAMERA / HEAD
-         ===================================================== -->
-
     <section class="panel">
 
         <h2>
             Camera / Head
         </h2>
-
 
         <div class="control">
 
@@ -287,7 +271,6 @@
 
         </div>
 
-
         <div class="control">
 
             <label for="yaw">
@@ -310,7 +293,6 @@
             </div>
 
         </div>
-
 
         <div class="control">
 
@@ -335,7 +317,6 @@
 
         </div>
 
-
         <div class="control">
 
             <label for="zoom">
@@ -358,7 +339,6 @@
             </div>
 
         </div>
-
 
         <div class="control">
 
@@ -388,13 +368,7 @@
 </div>
 
 
-
-
 <script>
-
-    // ========================================================
-    // Defaults
-    // ========================================================
 
     const DEFAULTS = {
 
@@ -408,13 +382,11 @@
             fov: 30
         },
 
-
         head: {
             pitch: 10,
             yaw: 25,
             roll: 0
         },
-
 
         lighting: {
             ambient: 1.00,
@@ -436,7 +408,6 @@
             groundColor: 0xFFFFFF
         },
 
-
         layer: {
             enabled: true,
 
@@ -444,10 +415,6 @@
         }
     };
 
-
-    // ========================================================
-    // Slider ranges
-    // ========================================================
 
     const RANGES = {
 
@@ -508,23 +475,19 @@
     };
 
 
-    // ========================================================
-    // DOM helpers
-    // ========================================================
+    let currentSkinSource = null;
+
 
     function get(id) {
         return document.getElementById(id);
     }
 
 
-    // ========================================================
-    // Control setup
-    // ========================================================
-
     function setupControl(
         name,
         value
     ) {
+
         const numberInput =
             get(name);
 
@@ -533,7 +496,6 @@
 
         const range =
             RANGES[name];
-
 
         slider.min =
             range.min;
@@ -551,12 +513,10 @@
             value;
 
 
-        /*
-         * The slider updates the number field and renderer.
-         */
         slider.addEventListener(
             "input",
             function () {
+
                 numberInput.value =
                     slider.value;
 
@@ -568,12 +528,10 @@
         );
 
 
-        /*
-         * The number field updates the slider and renderer.
-         */
         numberInput.addEventListener(
             "input",
             function () {
+
                 const value =
                     parseFloat(
                         numberInput.value
@@ -596,6 +554,7 @@
 
 
     function initializeControls() {
+
         setupControl(
             "ambient",
             DEFAULTS.lighting.ambient
@@ -653,14 +612,11 @@
     }
 
 
-    /*
-     * Reset the controls without recreating their event
-     * listeners.
-     */
     function setControlValue(
         name,
         value
     ) {
+
         get(name).value =
             value;
 
@@ -673,28 +629,29 @@
         name,
         value
     ) {
+
         Head3D.updateSettings({
+
             [name]:
                 parseFloat(value)
+
         });
     }
 
 
-    // ========================================================
-    // Skin loading
-    // ========================================================
-
     function loadSkin() {
+
         const username =
             get("username")
                 .value
                 .trim();
 
-
         if (!username) {
             return;
         }
 
+        currentSkinSource =
+            username;
 
         Head3D.render(
             get("preview-container"),
@@ -715,11 +672,44 @@
     }
 
 
-    // ========================================================
-    // Reset
-    // ========================================================
+    function loadSkinFromFile(file) {
+
+        if (!file) {
+            return;
+        }
+
+        currentSkinSource =
+            file;
+
+        Head3D.render(
+            get("preview-container"),
+
+            file,
+
+            {
+                withLayers:
+                get("include-hat").checked,
+
+                defaults:
+                DEFAULTS
+            }
+        )
+            .then(function () {
+
+                get("username").value =
+                    file.name.replace(
+                        /\.png$/i,
+                        ""
+                    );
+            })
+            .catch(function (error) {
+                console.error(error);
+            });
+    }
+
 
     function resetControls() {
+
         setControlValue(
             "ambient",
             DEFAULTS.lighting.ambient
@@ -814,10 +804,6 @@
     }
 
 
-    // ========================================================
-    // Event listeners
-    // ========================================================
-
     get("load-button")
         .addEventListener(
             "click",
@@ -825,10 +811,34 @@
         );
 
 
+    get("load-file-button")
+        .addEventListener(
+            "click",
+            function () {
+                get("skin-file").click();
+            }
+        );
+
+
+    get("skin-file")
+        .addEventListener(
+            "change",
+            function () {
+
+                const file =
+                    get("skin-file")
+                        .files[0];
+
+                loadSkinFromFile(file);
+            }
+        );
+
+
     get("username")
         .addEventListener(
             "keydown",
             function (event) {
+
                 if (event.key === "Enter") {
                     loadSkin();
                 }
@@ -840,14 +850,13 @@
         .addEventListener(
             "click",
             function () {
+
                 const render =
                     Head3D.getCurrentRender();
-
 
                 if (!render) {
                     return;
                 }
-
 
                 Head3D.downloadHead(
                     render.renderer.domElement,
@@ -871,20 +880,17 @@
         .addEventListener(
             "change",
             function () {
-                if (
-                    get("username")
-                        .value
-                        .trim()
-                ) {
-                    loadSkin();
+
+                if (!currentSkinSource) {
+                    return;
                 }
+
+                Head3D.setLayersEnabled(
+                    get("include-hat").checked
+                );
             }
         );
 
-
-    // ========================================================
-    // Initialize
-    // ========================================================
 
     initializeControls();
 
@@ -893,5 +899,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="js/headgen.js"></script>
 <script src="js/main.js"></script>
+
 </body>
 </html>
