@@ -1,6 +1,32 @@
 {
   "apiUrl": "http://localhost:3000",
 
+  "defaults": {
+    "camera": {
+      "zoom": {
+        "head": 1.7,
+        "body": 1.07
+      }
+    },
+    "head": {
+      "pitch": 10,
+      "yaw": 25,
+      "roll": 0
+    },
+    "lighting": {
+      "ambient": 1.0,
+      "hemisphere": 0,
+      "directional": 0,
+      "lightX": -1.0,
+      "lightY": 0,
+      "lightZ": 1.0
+    },
+    "layer": {
+      "enabled": true,
+      "scale": 1.04
+    }
+  },
+
   "ranges": {
     "ambient": {
       "min": 0,
@@ -15,16 +41,16 @@
       "max": 2
     },
     "lightX": {
-      "min": -1,
-      "max": 1
+      "min": -2,
+      "max": 2
     },
     "lightY": {
-      "min": -1,
-      "max": 1
+      "min": -2,
+      "max": 2
     },
     "lightZ": {
-      "min": -1,
-      "max": 1
+      "min": -2,
+      "max": 2
     },
     "pitch": {
       "min": -180,
@@ -39,41 +65,12 @@
       "max": 180
     },
     "zoom": {
-      "min": 0.25,
-      "max": 5
+      "min": 0.5,
+      "max": 3
     },
     "layerScale": {
       "min": 1,
-      "max": 1.25
-    }
-  },
-
-  "defaults": {
-    "lighting": {
-      "ambient": 0.4,
-      "hemisphere": 0.6,
-      "directional": 1,
-      "lightX": 1,
-      "lightY": 1,
-      "lightZ": 1
-    },
-
-    "head": {
-      "pitch": 0,
-      "yaw": 0,
-      "roll": 0
-    },
-
-    "camera": {
-      "zoom": {
-        "head": 1,
-        "body": 0.7
-      }
-    },
-
-    "layer": {
-      "enabled": true,
-      "scale": 1.08
+      "max": 1.5
     }
   }
 }
