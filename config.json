@@ -1,5 +1,6 @@
 {
-  "apiUrl": "http://localhost:3000",
+  "skinProvider": "mineskin",
+  "proxyUrl": "http://localhost:3000",
 
   "defaults": {
     "camera": {

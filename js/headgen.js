@@ -12,7 +12,7 @@ var Head3D = (function () {
 
     let currentRender = null;
 
-    function loadSkinImage(source, apiUrl) {
+    function loadSkinImage(source, proxyUrl, skinProvider) {
         return new Promise(function (resolve, reject) {
             const image = new Image();
 
@@ -32,13 +32,25 @@ var Head3D = (function () {
                 return;
             }
 
+            image.crossOrigin = "anonymous";
+
             image.onload = function () {
                 resolve(image);
             };
 
-            image.crossOrigin = "anonymous";
+            if (skinProvider === "minotar") {
+                image.src = "https://minotar.net/skin/" + encodeURIComponent(source);
 
-            fetch(apiUrl + "/api/minecraft/" + encodeURIComponent(source))
+                return;
+            }
+
+            if (skinProvider === "mineskin") {
+                image.src = "https://mineskin.eu/skin/" + encodeURIComponent(source);
+
+                return;
+            }
+
+            fetch(proxyUrl + "/api/minecraft/" + encodeURIComponent(source))
                 .then(function (response) {
                     if (!response.ok) {
                         throw new Error("Could not find Minecraft player.");
@@ -234,6 +246,7 @@ var Head3D = (function () {
                 const overlayMesh = createPart(skinImage, scale, part.w, part.h, part.d, overlayRegions);
 
                 overlayMesh.position.copy(baseMesh.position);
+
                 overlayMesh.userData.overlay = true;
 
                 group.add(overlayMesh);
@@ -313,11 +326,15 @@ var Head3D = (function () {
         });
 
         renderer.setClearColor(0x000000, 0);
+
         renderer.setPixelRatio(1);
+
         renderer.setSize(RENDER_SIZE, RENDER_SIZE, false);
 
         renderer.domElement.style.width = RENDER_SIZE + "px";
+
         renderer.domElement.style.height = RENDER_SIZE + "px";
+
         renderer.domElement.style.display = "block";
 
         return renderer;
@@ -339,8 +356,11 @@ var Head3D = (function () {
         disposeSubject(currentRender.subject);
 
         const scale = currentRender.skinImage.width / 64;
+
         const legacy = isLegacySkin(currentRender.skinImage);
+
         const view = VIEW[currentRender.mode];
+
         const halfSize = view.size / 2;
 
         const scene = new THREE.Scene();
@@ -348,13 +368,17 @@ var Head3D = (function () {
         const camera = new THREE.OrthographicCamera(-halfSize, halfSize, halfSize, -halfSize, 0.1, 1000);
 
         camera.position.set(0, 0, 4);
+
         camera.lookAt(0, 0, 0);
+
         camera.zoom = currentRender.settings.zoom;
+
         camera.updateProjectionMatrix();
 
         const subject = currentRender.mode === "body" ? buildCharacter(currentRender.skinImage, scale, legacy, currentRender.withLayers, currentRender.slim) : buildHead(currentRender.skinImage, scale, currentRender.withLayers);
 
         applyRotation(subject, currentRender.settings);
+
         applyLayerScale(subject, currentRender.settings.layerScale);
 
         scene.add(subject);
@@ -380,44 +404,51 @@ var Head3D = (function () {
             throw new Error("Head3D.render requires a defaults object.");
         }
 
-        return loadSkinImage(source, options.apiUrl || "")
-            .then(function (skinImage) {
-                const renderer = createRenderer();
+        const proxyUrl = options.proxyUrl || "";
 
-                container.innerHTML = "";
-                container.appendChild(renderer.domElement);
+        const skinProvider = options.skinProvider || "proxy";
 
-                const slim = options.slim === undefined ? detectSlimArms(skinImage) : Boolean(options.slim);
+        if (skinProvider !== "proxy" && skinProvider !== "minotar" && skinProvider !== "mineskin") {
+            throw new Error('Unsupported skin provider "' + skinProvider + '".');
+        }
 
-                currentRender = {
-                    renderer: renderer,
-                    skinImage: skinImage,
-                    mode: options.mode || "head",
-                    withLayers: options.withLayers !== false,
-                    slim: slim,
-                    settings: {
-                        zoom: defaults.camera.zoom,
-                        pitch: defaults.head.pitch,
-                        yaw: defaults.head.yaw,
-                        roll: defaults.head.roll,
-                        ambient: defaults.lighting.ambient,
-                        hemisphere: defaults.lighting.hemisphere,
-                        directional: defaults.lighting.directional,
-                        lightX: defaults.lighting.lightX,
-                        lightY: defaults.lighting.lightY,
-                        lightZ: defaults.lighting.lightZ,
-                        layerScale: defaults.layer.scale
-                    }
-                };
+        return loadSkinImage(source, proxyUrl, skinProvider).then(function (skinImage) {
+            const renderer = createRenderer();
 
-                renderer.domElement._head3D = currentRender;
+            container.innerHTML = "";
+            container.appendChild(renderer.domElement);
 
-                rebuildScene();
+            const slim = options.slim === undefined ? detectSlimArms(skinImage) : Boolean(options.slim);
 
-                return {
-                    element: renderer.domElement, slim: slim
-                };
-            });
+            currentRender = {
+                renderer: renderer,
+                skinImage: skinImage,
+                mode: options.mode || "head",
+                withLayers: options.withLayers !== false,
+                slim: slim,
+                settings: {
+                    zoom: defaults.camera.zoom,
+                    pitch: defaults.head.pitch,
+                    yaw: defaults.head.yaw,
+                    roll: defaults.head.roll,
+                    ambient: defaults.lighting.ambient,
+                    hemisphere: defaults.lighting.hemisphere,
+                    directional: defaults.lighting.directional,
+                    lightX: defaults.lighting.lightX,
+                    lightY: defaults.lighting.lightY,
+                    lightZ: defaults.lighting.lightZ,
+                    layerScale: defaults.layer.scale
+                }
+            };
+
+            renderer.domElement._head3D = currentRender;
+
+            rebuildScene();
+
+            return {
+                element: renderer.domElement, slim: slim
+            };
+        });
     }
 
     function updateSettings(settings) {
@@ -432,7 +463,9 @@ var Head3D = (function () {
         const settingsData = currentRender.settings;
 
         currentRender.camera.zoom = settingsData.zoom;
-        currentRender.camera.updateProjectionMatrix();
+
+        currentRender.camera
+            .updateProjectionMatrix();
 
         applyRotation(currentRender.subject, settingsData);
 
@@ -541,11 +574,13 @@ var Head3D = (function () {
         const canvas = document.createElement("canvas");
 
         canvas.width = skinImage.width;
+
         canvas.height = skinImage.height;
 
         const context = canvas.getContext("2d");
 
         context.imageSmoothingEnabled = false;
+
         context.drawImage(skinImage, 0, 0);
 
         const filename = sanitizeFilename(username, "minecraft-skin") + "-skin.png";

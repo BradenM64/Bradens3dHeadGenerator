@@ -16,6 +16,7 @@ function showError(message) {
 
     if (!popup) {
         popup = document.createElement("div");
+
         popup.id = "error-popup";
         popup.className = "error-popup";
 
@@ -34,6 +35,7 @@ function showError(message) {
 
 function setupControl(name, value) {
     const numberInput = get(name);
+
     const slider = get(name + "-slider");
 
     if (!CONFIG.ranges[name]) {
@@ -96,6 +98,7 @@ function initializeControls() {
 
 function setControlValue(name, value) {
     const numberInput = get(name);
+
     const slider = get(name + "-slider");
 
     numberInput.value = value;
@@ -112,18 +115,24 @@ function buildDefaults() {
     return {
         camera: {
             zoom: parseFloat(get("zoom").value)
-        }, head: {
+        },
+
+        head: {
             pitch: parseFloat(get("pitch").value),
             yaw: parseFloat(get("yaw").value),
             roll: parseFloat(get("roll").value)
-        }, lighting: {
+        },
+
+        lighting: {
             ambient: parseFloat(get("ambient").value),
             hemisphere: parseFloat(get("hemisphere").value),
             directional: parseFloat(get("directional").value),
             lightX: parseFloat(get("lightX").value),
             lightY: parseFloat(get("lightY").value),
             lightZ: parseFloat(get("lightZ").value)
-        }, layer: {
+        },
+
+        layer: {
             scale: parseFloat(get("layerScale").value)
         }
     };
@@ -131,7 +140,11 @@ function buildDefaults() {
 
 function renderSkin(source) {
     return Head3D.render(get("preview-container"), source, {
-        mode: currentMode, withLayers: get("include-hat").checked, defaults: buildDefaults(), apiUrl: CONFIG.apiUrl
+        mode: currentMode,
+        withLayers: get("include-hat").checked,
+        defaults: buildDefaults(),
+        proxyUrl: CONFIG.proxyUrl,
+        skinProvider: CONFIG.skinProvider
     });
 }
 
@@ -153,7 +166,7 @@ function loadSkin() {
         .catch(function (error) {
             console.error(error);
 
-            showError("Invalid Minecraft username.");
+            showError("Could not load Minecraft skin.");
         });
 }
 
@@ -327,6 +340,8 @@ function initializeApplication() {
 
     initializeControls();
 
+    console.log("Skin provider:", CONFIG.skinProvider);
+
     console.log('  /\\_/\\  (\n' + ' ( ^.^ ) _)\n' + '   \\"/  (\n' + ' ( | | )\n' + '(__d b__)\n' + '\n-braden :)');
 }
 
@@ -341,6 +356,14 @@ fetch("config.json")
     .then(function (config) {
         if (!config || !config.defaults || !config.ranges) {
             throw new Error("config.json is missing required configuration.");
+        }
+
+        if (config.skinProvider !== "proxy" && config.skinProvider !== "minotar" && config.skinProvider !== "mineskin") {
+            throw new Error('config.json must specify a valid skinProvider: "proxy", "minotar", or "mineskin".');
+        }
+
+        if (config.skinProvider === "proxy" && !config.proxyUrl) {
+            throw new Error('config.json requires "proxyUrl" when using the default skin provider.');
         }
 
         CONFIG = config;
