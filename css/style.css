@@ -43,10 +43,6 @@ h1 {
 }
 
 .control {
-    margin-bottom: 18px;
-}
-
-.control {
     margin-bottom: 0;
 }
 
@@ -98,16 +94,12 @@ h1 {
 .mode-toggle button {
     flex: 1;
     padding: 8px 12px;
-    background: #222;
+    background: #333;
     color: #aaa;
     border: 1px solid #444;
     border-radius: 4px;
     cursor: pointer;
     font-size: 13px;
-}
-
-.mode-toggle button {
-    background: #333;
 }
 
 .mode-toggle button.active {
@@ -121,7 +113,10 @@ h1 {
     height: 512px;
     overflow: hidden;
     display: block;
-    background: repeating-conic-gradient(#1b1b1b 0% 25%, #222 0% 50%) 0 / 32px 32px;
+    background: repeating-conic-gradient(
+            #1b1b1b 0% 25%,
+            #222 0% 50%
+    ) 0 / 32px 32px;
     outline: 1px solid #333;
     border-radius: 4px;
 }
@@ -167,16 +162,12 @@ h1 {
 button {
     width: 100%;
     padding: 9px 12px;
-    background: #333;
+    background: #444;
     color: #fff;
     border: 1px solid #555;
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
-}
-
-button {
-    background: #444;
 }
 
 .checkbox-controls {
@@ -221,6 +212,29 @@ button {
 .site-footer svg {
     width: 16px;
     height: 16px;
+}
+
+.error-popup {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    z-index: 1000;
+    transform: translate(-50%, -20px);
+    padding: 12px 20px;
+    background: #3a1515;
+    color: #fff;
+    border: 1px solid #7a3030;
+    border-radius: 6px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.error-popup.visible {
+    opacity: 1;
+    transform: translate(-50%, 0);
 }
 
 @media (max-width: 1100px) {
