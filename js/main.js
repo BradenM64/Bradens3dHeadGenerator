@@ -2,11 +2,17 @@ let CONFIG = null;
 let currentMode = "head";
 
 function get(id) {
-    return document.getElementById(id);
+    const element = document.getElementById(id);
+
+    if (!element) {
+        throw new Error('Required element "' + id + '" does not exist.');
+    }
+
+    return element;
 }
 
 function showError(message) {
-    let popup = get("error-popup");
+    let popup = document.getElementById("error-popup");
 
     if (!popup) {
         popup = document.createElement("div");
@@ -29,12 +35,18 @@ function showError(message) {
 function setupControl(name, value) {
     const numberInput = get(name);
     const slider = get(name + "-slider");
+
+    if (!CONFIG.ranges[name]) {
+        throw new Error('Missing range configuration for "' + name + '".');
+    }
+
     const range = CONFIG.ranges[name];
 
     slider.min = range.min;
     slider.max = range.max;
     slider.step = numberInput.step;
     slider.value = value;
+
     numberInput.value = value;
 
     slider.addEventListener("input", function () {
@@ -83,8 +95,11 @@ function initializeControls() {
 }
 
 function setControlValue(name, value) {
-    get(name).value = value;
-    get(name + "-slider").value = value;
+    const numberInput = get(name);
+    const slider = get(name + "-slider");
+
+    numberInput.value = value;
+    slider.value = value;
 }
 
 function updateSetting(name, value) {
@@ -127,6 +142,7 @@ function loadSkin() {
 
     if (!username) {
         showError("Please enter a Minecraft username.");
+
         return;
     }
 
@@ -134,7 +150,9 @@ function loadSkin() {
         .then(function (result) {
             get("slim-arms").checked = result.slim;
         })
-        .catch(function () {
+        .catch(function (error) {
+            console.error(error);
+
             showError("Invalid Minecraft username.");
         });
 }
@@ -150,13 +168,15 @@ function loadSkinFromFile(file) {
 
             get("username").value = file.name.replace(/\.png$/i, "");
         })
-        .catch(function () {
+        .catch(function (error) {
+            console.error(error);
+
             showError("Could not load the selected skin file.");
         });
 }
 
 function setMode(mode) {
-    if (currentMode === mode) {
+    if (currentMode === mode || !CONFIG.defaults.camera.zoom[mode]) {
         return;
     }
 
@@ -238,6 +258,8 @@ function initializeApplication() {
     get("skin-file")
         .addEventListener("change", function () {
             loadSkinFromFile(get("skin-file").files[0]);
+
+            get("skin-file").value = "";
         });
 
     get("username")
@@ -252,10 +274,14 @@ function initializeApplication() {
             const render = Head3D.getCurrentRender();
 
             if (!render) {
+                showError("Load a skin before downloading a render.");
+
                 return;
             }
 
-            Head3D.downloadHead(render.renderer.domElement, get("username").value.trim());
+            Head3D.downloadHead(render.renderer.domElement, get("username")
+                .value
+                .trim());
         });
 
     get("download-skin-button")
@@ -263,10 +289,14 @@ function initializeApplication() {
             const render = Head3D.getCurrentRender();
 
             if (!render) {
+                showError("Load a skin before downloading the skin.");
+
                 return;
             }
 
-            Head3D.downloadSkin(get("username").value.trim());
+            Head3D.downloadSkin(get("username")
+                .value
+                .trim());
         });
 
     get("reset-lighting-button")
@@ -297,13 +327,7 @@ function initializeApplication() {
 
     initializeControls();
 
-    console.log(
-        '  /\\_/\\  (\n' +
-        ' ( ^.^ ) _)\n' +
-        '   \\"/  (\n' +
-        ' ( | | )\n' +
-        '(__d b__)\n' +
-        '\n-braden :)');
+    console.log('  /\\_/\\  (\n' + ' ( ^.^ ) _)\n' + '   \\"/  (\n' + ' ( | | )\n' + '(__d b__)\n' + '\n-braden :)');
 }
 
 fetch("config.json")
@@ -315,11 +339,16 @@ fetch("config.json")
         return response.json();
     })
     .then(function (config) {
+        if (!config || !config.defaults || !config.ranges) {
+            throw new Error("config.json is missing required configuration.");
+        }
+
         CONFIG = config;
 
         initializeApplication();
     })
     .catch(function (error) {
         console.error(error);
+
         showError("Could not load configuration.");
     });
