@@ -31,6 +31,8 @@ or
 }
 ```
 
+There is no need to set `proxyUrl` if not using one of these options.
+
 ### Proxy
 Uses [BradensSkinProxy](https://github.com/BradenM64/BradensSkinProxy) to look up Minecraft skins.
 
@@ -42,5 +44,3 @@ Uses [BradensSkinProxy](https://github.com/BradenM64/BradensSkinProxy) to look u
 ```
 
 When using this option, `proxyUrl` should point to your proxy instance.
-
-There is no need to set `proxyUrl` if not using the proxy option.
