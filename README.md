@@ -1,4 +1,4 @@
-# Bradens3dHeadGenerator
+# BradensHeadGenerator
 
 Minecraft skin renderer for generating 3D head and full-body renders.
 
