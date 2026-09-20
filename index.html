@@ -1,904 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>
-        Braden's 3D Head Generator
-    </title>
-
-    <link rel="icon" type="image/png" href="favicon.ico">
-
-    <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Braden's 3D Head Generator</title>
+    <link rel="icon" type="image/png" href="favicon.ico"/>
+    <link rel="stylesheet" href="css/style.css"/>
 </head>
-
 <body>
-
-<h1>
-    Braden's 3D Head Generator
-</h1>
+<h1>Braden's 3D Head Generator</h1>
 
 <div class="workspace">
-
     <section class="panel">
-
-        <h2>
-            Lighting
-        </h2>
+        <h2>Lighting</h2>
 
         <div class="control">
-
-            <label for="ambient">
-                Ambient
-            </label>
-
+            <label for="ambient">Ambient</label>
             <div class="control-row">
-
-                <input
-                        id="ambient-slider"
-                        type="range"
-                >
-
-                <input
-                        id="ambient"
-                        type="number"
-                        step="0.01"
-                >
-
+                <input id="ambient-slider" type="range"/>
+                <input id="ambient" type="number" step="0.01"/>
             </div>
-
         </div>
 
         <div class="control">
-
-            <label for="hemisphere">
-                Hemisphere
-            </label>
-
+            <label for="hemisphere">Hemisphere</label>
             <div class="control-row">
-
-                <input
-                        id="hemisphere-slider"
-                        type="range"
-                >
-
-                <input
-                        id="hemisphere"
-                        type="number"
-                        step="0.01"
-                >
-
+                <input id="hemisphere-slider" type="range"/>
+                <input id="hemisphere" type="number" step="0.01"/>
             </div>
-
         </div>
 
         <div class="control">
-
-            <label for="directional">
-                Directional
-            </label>
-
+            <label for="directional">Directional</label>
             <div class="control-row">
-
-                <input
-                        id="directional-slider"
-                        type="range"
-                >
-
-                <input
-                        id="directional"
-                        type="number"
-                        step="0.01"
-                >
-
+                <input id="directional-slider" type="range"/>
+                <input id="directional" type="number" step="0.01"/>
             </div>
-
         </div>
 
         <div class="control">
-
-            <label for="lightX">
-                Light X
-            </label>
-
+            <label for="lightX">Light X</label>
             <div class="control-row">
-
-                <input
-                        id="lightX-slider"
-                        type="range"
-                >
-
-                <input
-                        id="lightX"
-                        type="number"
-                        step="0.01"
-                >
-
+                <input id="lightX-slider" type="range"/>
+                <input id="lightX" type="number" step="0.01"/>
             </div>
-
         </div>
 
         <div class="control">
-
-            <label for="lightY">
-                Light Y
-            </label>
-
+            <label for="lightY">Light Y</label>
             <div class="control-row">
-
-                <input
-                        id="lightY-slider"
-                        type="range"
-                >
-
-                <input
-                        id="lightY"
-                        type="number"
-                        step="0.01"
-                >
-
+                <input id="lightY-slider" type="range"/>
+                <input id="lightY" type="number" step="0.01"/>
             </div>
-
         </div>
 
         <div class="control">
-
-            <label for="lightZ">
-                Light Z
-            </label>
-
+            <label for="lightZ">Light Z</label>
             <div class="control-row">
-
-                <input
-                        id="lightZ-slider"
-                        type="range"
-                >
-
-                <input
-                        id="lightZ"
-                        type="number"
-                        step="0.01"
-                >
-
+                <input id="lightZ-slider" type="range"/>
+                <input id="lightZ" type="number" step="0.01"/>
             </div>
-
         </div>
 
+        <div class="panel-reset">
+            <button id="reset-lighting-button" type="button">Reset Lighting</button>
+        </div>
     </section>
 
-
     <main class="center">
+        <div class="mode-toggle">
+            <button id="mode-head" type="button" class="active">Head</button>
+            <button id="mode-body" type="button">Full Body</button>
+        </div>
 
         <div id="preview-container"></div>
 
         <div class="username-section">
-
-            <label for="username">
-                Minecraft Username
-            </label>
-
-            <input
-                    id="username"
-                    type="text"
-                    placeholder="Enter username"
-                    autocomplete="off"
-            >
-
+            <label for="username">Minecraft Username</label>
+            <input id="username" type="text" placeholder="Enter username" autocomplete="off"/>
         </div>
 
         <div class="buttons">
-
-            <button
-                    id="load-button"
-                    type="button"
-            >
-                Load Skin
-            </button>
-
-            <button
-                    id="load-file-button"
-                    type="button"
-            >
-                Load from File
-            </button>
-
-            <input
-                    id="skin-file"
-                    type="file"
-                    accept="image/png"
-                    hidden
-            >
-
-            <button
-                    id="download-button"
-                    type="button"
-            >
-                Download PNG
-            </button>
-
-            <button
-                    id="reset-button"
-                    type="button"
-            >
-                Reset Lighting / Camera
-            </button>
-
+            <button id="load-button" type="button">Load Skin</button>
+            <button id="load-file-button" type="button">Load from File</button>
+            <input id="skin-file" type="file" accept="image/png" hidden=""/>
+            <button id="download-render-button" type="button">Download Render</button>
+            <button id="download-skin-button" type="button">Download Skin</button>
         </div>
 
         <label class="checkbox-control">
-
-            <input
-                    id="include-hat"
-                    type="checkbox"
-                    checked
-            >
-
+            <input id="include-hat" type="checkbox" checked=""/>
             Include Hat / Outer Layer
-
         </label>
 
+        <label class="checkbox-control">
+            <input id="slim-arms" type="checkbox"/>
+            Slim Arms (Alex model)
+        </label>
     </main>
 
-
     <section class="panel">
-
-        <h2>
-            Camera / Head
-        </h2>
+        <h2>Camera / Head</h2>
 
         <div class="control">
-
-            <label for="pitch">
-                Pitch
-            </label>
-
+            <label for="pitch">Pitch</label>
             <div class="control-row">
-
-                <input
-                        id="pitch-slider"
-                        type="range"
-                >
-
-                <input
-                        id="pitch"
-                        type="number"
-                        step="1"
-                >
-
+                <input id="pitch-slider" type="range"/>
+                <input id="pitch" type="number" step="1"/>
             </div>
-
         </div>
 
         <div class="control">
-
-            <label for="yaw">
-                Yaw
-            </label>
-
+            <label for="yaw">Yaw</label>
             <div class="control-row">
-
-                <input
-                        id="yaw-slider"
-                        type="range"
-                >
-
-                <input
-                        id="yaw"
-                        type="number"
-                        step="1"
-                >
-
+                <input id="yaw-slider" type="range"/>
+                <input id="yaw" type="number" step="1"/>
             </div>
-
         </div>
 
         <div class="control">
-
-            <label for="roll">
-                Roll
-            </label>
-
+            <label for="roll">Roll</label>
             <div class="control-row">
-
-                <input
-                        id="roll-slider"
-                        type="range"
-                >
-
-                <input
-                        id="roll"
-                        type="number"
-                        step="1"
-                >
-
+                <input id="roll-slider" type="range"/>
+                <input id="roll" type="number" step="1"/>
             </div>
-
         </div>
 
         <div class="control">
-
-            <label for="zoom">
-                Zoom
-            </label>
-
+            <label for="zoom">Zoom</label>
             <div class="control-row">
-
-                <input
-                        id="zoom-slider"
-                        type="range"
-                >
-
-                <input
-                        id="zoom"
-                        type="number"
-                        step="0.01"
-                >
-
+                <input id="zoom-slider" type="range"/>
+                <input id="zoom" type="number" step="0.01"/>
             </div>
-
         </div>
 
         <div class="control">
-
-            <label for="layerScale">
-                Hat Scale
-            </label>
-
+            <label for="layerScale">Layer Scale</label>
             <div class="control-row">
-
-                <input
-                        id="layerScale-slider"
-                        type="range"
-                >
-
-                <input
-                        id="layerScale"
-                        type="number"
-                        step="0.01"
-                >
-
+                <input id="layerScale-slider" type="range"/>
+                <input id="layerScale" type="number" step="0.01"/>
             </div>
-
         </div>
 
+        <div class="panel-reset">
+            <button id="reset-camera-button" type="button">Reset Camera</button>
+        </div>
     </section>
-
 </div>
-
-
-<script>
-
-    const DEFAULTS = {
-
-        camera: {
-            x: 0,
-            y: 0,
-            z: 4,
-
-            zoom: 1.7,
-
-            fov: 30
-        },
-
-        head: {
-            pitch: 10,
-            yaw: 25,
-            roll: 0
-        },
-
-        lighting: {
-            ambient: 1.00,
-
-            hemisphere: 0,
-
-            directional: 0,
-
-            lightX: -1.0,
-
-            lightY: 0,
-
-            lightZ: 1.0,
-
-            color: 0xFFFFFF,
-
-            skyColor: 0xFFFFFF,
-
-            groundColor: 0xFFFFFF
-        },
-
-        layer: {
-            enabled: true,
-
-            scale: 1.04
-        }
-    };
-
-
-    const RANGES = {
-
-        ambient: {
-            min: 0,
-            max: 2
-        },
-
-        hemisphere: {
-            min: 0,
-            max: 2
-        },
-
-        directional: {
-            min: 0,
-            max: 2
-        },
-
-        lightX: {
-            min: -2,
-            max: 2
-        },
-
-        lightY: {
-            min: -2,
-            max: 2
-        },
-
-        lightZ: {
-            min: -2,
-            max: 2
-        },
-
-        pitch: {
-            min: -180,
-            max: 180
-        },
-
-        yaw: {
-            min: -180,
-            max: 180
-        },
-
-        roll: {
-            min: -180,
-            max: 180
-        },
-
-        zoom: {
-            min: 0.5,
-            max: 3
-        },
-
-        layerScale: {
-            min: 1,
-            max: 1.5
-        }
-    };
-
-
-    let currentSkinSource = null;
-
-
-    function get(id) {
-        return document.getElementById(id);
-    }
-
-
-    function setupControl(
-        name,
-        value
-    ) {
-
-        const numberInput =
-            get(name);
-
-        const slider =
-            get(name + "-slider");
-
-        const range =
-            RANGES[name];
-
-        slider.min =
-            range.min;
-
-        slider.max =
-            range.max;
-
-        slider.step =
-            numberInput.step;
-
-        slider.value =
-            value;
-
-        numberInput.value =
-            value;
-
-
-        slider.addEventListener(
-            "input",
-            function () {
-
-                numberInput.value =
-                    slider.value;
-
-                updateSetting(
-                    name,
-                    slider.value
-                );
-            }
-        );
-
-
-        numberInput.addEventListener(
-            "input",
-            function () {
-
-                const value =
-                    parseFloat(
-                        numberInput.value
-                    );
-
-                if (!Number.isFinite(value)) {
-                    return;
-                }
-
-                slider.value =
-                    value;
-
-                updateSetting(
-                    name,
-                    value
-                );
-            }
-        );
-    }
-
-
-    function initializeControls() {
-
-        setupControl(
-            "ambient",
-            DEFAULTS.lighting.ambient
-        );
-
-        setupControl(
-            "hemisphere",
-            DEFAULTS.lighting.hemisphere
-        );
-
-        setupControl(
-            "directional",
-            DEFAULTS.lighting.directional
-        );
-
-        setupControl(
-            "lightX",
-            DEFAULTS.lighting.lightX
-        );
-
-        setupControl(
-            "lightY",
-            DEFAULTS.lighting.lightY
-        );
-
-        setupControl(
-            "lightZ",
-            DEFAULTS.lighting.lightZ
-        );
-
-        setupControl(
-            "pitch",
-            DEFAULTS.head.pitch
-        );
-
-        setupControl(
-            "yaw",
-            DEFAULTS.head.yaw
-        );
-
-        setupControl(
-            "roll",
-            DEFAULTS.head.roll
-        );
-
-        setupControl(
-            "zoom",
-            DEFAULTS.camera.zoom
-        );
-
-        setupControl(
-            "layerScale",
-            DEFAULTS.layer.scale
-        );
-    }
-
-
-    function setControlValue(
-        name,
-        value
-    ) {
-
-        get(name).value =
-            value;
-
-        get(name + "-slider").value =
-            value;
-    }
-
-
-    function updateSetting(
-        name,
-        value
-    ) {
-
-        Head3D.updateSettings({
-
-            [name]:
-                parseFloat(value)
-
-        });
-    }
-
-
-    function loadSkin() {
-
-        const username =
-            get("username")
-                .value
-                .trim();
-
-        if (!username) {
-            return;
-        }
-
-        currentSkinSource =
-            username;
-
-        Head3D.render(
-            get("preview-container"),
-
-            username,
-
-            {
-                withLayers:
-                get("include-hat").checked,
-
-                defaults:
-                DEFAULTS
-            }
-        )
-            .catch(function (error) {
-                console.error(error);
-            });
-    }
-
-
-    function loadSkinFromFile(file) {
-
-        if (!file) {
-            return;
-        }
-
-        currentSkinSource =
-            file;
-
-        Head3D.render(
-            get("preview-container"),
-
-            file,
-
-            {
-                withLayers:
-                get("include-hat").checked,
-
-                defaults:
-                DEFAULTS
-            }
-        )
-            .then(function () {
-
-                get("username").value =
-                    file.name.replace(
-                        /\.png$/i,
-                        ""
-                    );
-            })
-            .catch(function (error) {
-                console.error(error);
-            });
-    }
-
-
-    function resetControls() {
-
-        setControlValue(
-            "ambient",
-            DEFAULTS.lighting.ambient
-        );
-
-        setControlValue(
-            "hemisphere",
-            DEFAULTS.lighting.hemisphere
-        );
-
-        setControlValue(
-            "directional",
-            DEFAULTS.lighting.directional
-        );
-
-        setControlValue(
-            "lightX",
-            DEFAULTS.lighting.lightX
-        );
-
-        setControlValue(
-            "lightY",
-            DEFAULTS.lighting.lightY
-        );
-
-        setControlValue(
-            "lightZ",
-            DEFAULTS.lighting.lightZ
-        );
-
-        setControlValue(
-            "pitch",
-            DEFAULTS.head.pitch
-        );
-
-        setControlValue(
-            "yaw",
-            DEFAULTS.head.yaw
-        );
-
-        setControlValue(
-            "roll",
-            DEFAULTS.head.roll
-        );
-
-        setControlValue(
-            "zoom",
-            DEFAULTS.camera.zoom
-        );
-
-        setControlValue(
-            "layerScale",
-            DEFAULTS.layer.scale
-        );
-
-
-        Head3D.updateSettings({
-
-            ambient:
-            DEFAULTS.lighting.ambient,
-
-            hemisphere:
-            DEFAULTS.lighting.hemisphere,
-
-            directional:
-            DEFAULTS.lighting.directional,
-
-            lightX:
-            DEFAULTS.lighting.lightX,
-
-            lightY:
-            DEFAULTS.lighting.lightY,
-
-            lightZ:
-            DEFAULTS.lighting.lightZ,
-
-            pitch:
-            DEFAULTS.head.pitch,
-
-            yaw:
-            DEFAULTS.head.yaw,
-
-            roll:
-            DEFAULTS.head.roll,
-
-            zoom:
-            DEFAULTS.camera.zoom,
-
-            layerScale:
-            DEFAULTS.layer.scale
-        });
-    }
-
-
-    get("load-button")
-        .addEventListener(
-            "click",
-            loadSkin
-        );
-
-
-    get("load-file-button")
-        .addEventListener(
-            "click",
-            function () {
-                get("skin-file").click();
-            }
-        );
-
-
-    get("skin-file")
-        .addEventListener(
-            "change",
-            function () {
-
-                const file =
-                    get("skin-file")
-                        .files[0];
-
-                loadSkinFromFile(file);
-            }
-        );
-
-
-    get("username")
-        .addEventListener(
-            "keydown",
-            function (event) {
-
-                if (event.key === "Enter") {
-                    loadSkin();
-                }
-            }
-        );
-
-
-    get("download-button")
-        .addEventListener(
-            "click",
-            function () {
-
-                const render =
-                    Head3D.getCurrentRender();
-
-                if (!render) {
-                    return;
-                }
-
-                Head3D.downloadHead(
-                    render.renderer.domElement,
-
-                    get("username")
-                        .value
-                        .trim()
-                );
-            }
-        );
-
-
-    get("reset-button")
-        .addEventListener(
-            "click",
-            resetControls
-        );
-
-
-    get("include-hat")
-        .addEventListener(
-            "change",
-            function () {
-
-                if (!currentSkinSource) {
-                    return;
-                }
-
-                Head3D.setLayersEnabled(
-                    get("include-hat").checked
-                );
-            }
-        );
-
-
-    initializeControls();
-
-</script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="js/headgen.js"></script>
 <script src="js/main.js"></script>
-
 </body>
 </html>
