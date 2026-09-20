@@ -236,3 +236,12 @@ get("mode-body").addEventListener("click", function () {
 });
 
 initializeControls();
+
+console.log(
+    '  /\\_/\\  (\n' +
+    ' ( ^.^ ) _)\n' +
+    '   \\"/  (\n' +
+    ' ( | | )\n' +
+    '(__d b__)\n' +
+    '\n-braden :)'
+)
